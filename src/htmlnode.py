@@ -39,3 +39,28 @@ class LeafNode(HTMLNode):
             return f"<{self.tag} {prop_string}>{self.value}</{self.tag}>"
         else:
             return f"<{self.tag}>{self.value}</{self.tag}>"
+        
+
+class ParentNode(HTMLNode):
+    def __init__(self, tag, children, props=None):
+        if not children or len(children) == 0:
+            raise ValueError("a parent node needs at least one child")
+        self.children = children
+        self.tag = tag
+        self.props = props
+
+    def to_html(self):
+        if self.tag == None or self.tag == "":
+            raise ValueError('must have tag')
+        if self.children == None or len(self.children) == 0:
+            raise ValueError('a parent node needs at least one child')
+        for child in self.children:
+            if not hasattr(child, "to_html"):
+                raise TypeError("All children must be objects that have a to_html method.")
+        html_strings = []
+        for child in self.children:
+            html_strings.append(child.to_html())
+
+        tag_content = ''.join(html_strings)
+        return f"<{self.tag}>{tag_content}</{self.tag}>"
+        
