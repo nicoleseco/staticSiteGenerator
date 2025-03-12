@@ -2,6 +2,7 @@ import unittest
 
 from htmlnode import *
 from text_to_html import *
+from markdown_regex import *
 
 
 class TestHTMLNode(unittest.TestCase):
@@ -98,7 +99,54 @@ class TestSplitNodesDelimiter(unittest.TestCase):
         self.assertEqual(len(new_nodes), 1)
         self.assertEqual(new_nodes[0].text, "This is plain text")
         self.assertEqual(new_nodes[0].text_type, TextType.NORMAL_TYPE)
-      
+
+    def test_extract_markdown_images(self):
+        matches = extract_markdown_images("This is text with an ![image](https://i.imgur.com/zjjcJKZ.png)")
+        self.assertListEqual([("image", "https://i.imgur.com/zjjcJKZ.png")], matches)
+    def test_extract_markdown_links(self):
+        matches = extract_markdown_links("This is a text with a link [to boot dev](https://www.boot.dev)")
+        self.assertListEqual([("to boot dev", "https://www.boot.dev")], matches)
+
+
+    def test_split_images(self):
+        node = TextNode(
+            "This is text with an ![image](https://i.imgur.com/zjjcJKZ.png) and another ![second image](https://i.imgur.com/3elNhQu.png)",
+            TextType.NORMAL_TYPE,
+        )
+        new_nodes = split_nodes_image([node])
+        self.assertListEqual(
+            [
+                TextNode("This is text with an ", TextType.NORMAL_TYPE),
+                TextNode("image", TextType.IMG_TEXT, "https://i.imgur.com/zjjcJKZ.png"),
+                TextNode(" and another ", TextType.NORMAL_TYPE),
+                TextNode(
+                    "second image", TextType.IMG_TEXT, "https://i.imgur.com/3elNhQu.png"
+                ),
+            ],
+            new_nodes,
+        )
+        
+
+
+    def test_split_links(self):
+        node = TextNode(
+            "This is text with a [link](https://youtube.com) and another [second link](https://google.com)",
+            TextType.NORMAL_TYPE,
+        )
+        new_nodes = split_nodes_link([node])
+        self.assertListEqual(
+            [
+                TextNode("This is text with a ", TextType.NORMAL_TYPE),
+                TextNode("link", TextType.LINK_TEXT, "https://youtube.com"),
+                TextNode(" and another ", TextType.NORMAL_TYPE),
+                TextNode(
+                    "second link", TextType.LINK_TEXT, "https://google.com"
+                ),
+            ],
+            new_nodes,
+        )
+        
+
 
 if __name__ == "__main__":
     unittest.main()
