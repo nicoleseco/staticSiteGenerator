@@ -67,3 +67,26 @@ def split_nodes_image(old_nodes):
 
 def text_to_textnodes(text):
     segments = split_nodes_delimiter(text)
+    text_nodes = []
+    i = 0
+    while i < len(segments):
+        segment = segments[i]
+        if segment == "**" and i + 1 < len(segments):
+            text_nodes.append(TextNode(segments[i+1], TextType.BOLD_TEXT))
+            i += 2
+        elif segment == "_" and i + 1 < len(segments):
+            text_nodes.append(TextNode(segments[i+1], TextType.ITALIC_TEXT))
+            i += 2
+        elif segment == "`" and i + 1 < len(segments):
+            text_nodes.append(TextNode(segments[i+1], TextType.CODE_TEXT))
+            i += 2
+        elif segment == "![" and i + 2 < len(segments):
+            text_nodes.append(TextNode(segments[i+1], TextType.IMG_TEXT, segments[i+2]))
+            i += 3
+        elif segment == "[" and i + 2 < len(segments):
+            text_nodes.append(TextNode(segments[i+1], TextType.LINK_TEXT, segments[i+2]))
+            i += 3
+        else:
+            text_nodes.append(TextNode(segment, TextType.NORMAL_TYPE))
+            i += 1
+    return text_nodes

@@ -30,7 +30,7 @@ def split_nodes_delimiter(text):
     delimiters = ["**", "_", "`", "![", "["]
     i = 0
     
-    while i < len(text):
+    while text:
         matched = False
         for delimiter in delimiters:
             if text[i:i+len(delimiter)] == delimiter:
@@ -38,3 +38,14 @@ def split_nodes_delimiter(text):
                     result.append(text[0:i])
                 result.append(delimiter)
                 text = text[i+len(delimiter):]
+                matched = True
+                break
+        if not matched:
+            next_delim_index = len(text)
+            for delimiter in delimiters:
+                index = text.find(delimiter)
+                if index != -1 and index < next_delim_index:
+                    next_delim_index = index
+            result.append(text[:next_delim_index])
+            text = text[next_delim_index:]
+    return result
