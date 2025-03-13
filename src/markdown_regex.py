@@ -64,3 +64,6 @@ def split_nodes_image(old_nodes):
                 else:
                     current_text = ""
     return result
+
+def text_to_textnodes(text):
+    segments = split_nodes_delimiter(text)
